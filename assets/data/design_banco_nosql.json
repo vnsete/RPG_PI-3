@@ -1,0 +1,11 @@
+{
+  "ambientes": [
+    {"id":"praca_alimentacao","ordem":1,"nome":"Praça de Alimentação","latitude":-22.833063818347757,"longitude":-47.0520543091816,"raioMetros":30,"proximo":"biblioteca"},
+    {"id":"biblioteca","ordem":2,"nome":"Biblioteca","latitude":-22.83374628248741,"longitude":-47.05194177674709,"raioMetros":30,"proximo":"capela"},
+    {"id":"capela","ordem":3,"nome":"Capela","latitude":-22.832860783549506,"longitude":-47.05080775385053,"raioMetros":30,"proximo":"h15"},
+    {"id":"h15","ordem":4,"nome":"Prédio H15","latitude":-22.83396897169469,"longitude":-47.05273805822132,"raioMetros":30,"proximo":"sala_10a"},
+    {"id":"sala_10a","ordem":5,"nome":"Sala 10A / Apresentação","latitude":-22.833977623740008,"longitude":-47.052506717692836,"raioMetros":12,"proximo":null}
+  ],
+  "progresso_jogador": {"jogadorId":"local","ambienteAtualId":"praca_alimentacao","ambientesConcluidos":[],"ultimaEscolha":null},
+  "dialogos": "No código desta versão os diálogos estão no mock Dart, simulando a coleção NoSQL que futuramente irá para Firebase/MongoDB."
+}
