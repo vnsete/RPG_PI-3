@@ -5,7 +5,8 @@ const List<Ambiente> ambientes = [
     id: 'praca_alimentacao',
     ordem: 1,
     nome: 'Praca de Alimentacao',
-    descricao: 'Primeiro ponto da missao. O jogador inicia a busca pelo Thiago.',
+    descricao:
+        'Primeiro ponto da missao. O jogador inicia a busca pelo Thiago.',
     latitude: -22.833063818347757,
     longitude: -47.0520543091816,
     raioMetros: 30,
@@ -25,11 +26,12 @@ const List<Ambiente> ambientes = [
     id: 'capela',
     ordem: 3,
     nome: 'Capela',
-    descricao: 'Ambiente de investigacao onde o jogador encontra uma nova pista.',
+    descricao:
+        'Ambiente de investigacao onde o jogador encontra uma nova pista.',
     latitude: -22.832860783549506,
     longitude: -47.05080775385053,
     raioMetros: 30,
-    imagemEspera: 'assets/images/ambiente_capela/ambiente_3_espera.png',
+    imagemEspera: 'assets/images/tela_inicial.png',
   ),
   Ambiente(
     id: 'h15',
@@ -39,7 +41,7 @@ const List<Ambiente> ambientes = [
     latitude: -22.83396897169469,
     longitude: -47.05273805822132,
     raioMetros: 30,
-    imagemEspera: 'assets/images/ambiente_h15/ambiente_4_espera.png',
+    imagemEspera: 'assets/images/tela_inicial.png',
   ),
   Ambiente(
     id: 'sala_10a',
@@ -49,6 +51,6 @@ const List<Ambiente> ambientes = [
     latitude: -22.833977623740008,
     longitude: -47.052506717692836,
     raioMetros: 12,
-    imagemEspera: 'assets/images/ambiente_sala_10a/ambiente_5_espera.png',
+    imagemEspera: 'assets/images/tela_inicial.png',
   ),
 ];
