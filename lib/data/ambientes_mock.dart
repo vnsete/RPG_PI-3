@@ -4,7 +4,7 @@ const List<Ambiente> ambientes = [
   Ambiente(
     id: 'praca_alimentacao',
     ordem: 1,
-    nome: 'Praca de Alimentacao',
+    nome: 'Praça de Alimentação',
     descricao:
         'Primeiro ponto da missao. O jogador inicia a busca pelo Thiago.',
     latitude: -22.833063818347757,

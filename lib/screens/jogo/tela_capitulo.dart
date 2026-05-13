@@ -72,7 +72,7 @@ class _TelaCapituloState extends State<TelaCapitulo> {
 
     return BotaoJogo(
       texto: cena != null && (cena.concluiAmbiente || cena.tipo == TipoCena.fim)
-          ? 'PRÃ“XIMO CAPÃTULO'
+          ? 'PRÓXIMO CAPÍTULO'
           : 'CONTINUAR',
       onPressed: _avancarCena,
     );
@@ -115,7 +115,7 @@ class _TelaCapituloState extends State<TelaCapitulo> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'CapÃ­tulo ${widget.ambiente.ordem}',
+                            'Capítulo ${widget.ambiente.ordem}',
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               color: Colors.amber,
@@ -160,7 +160,7 @@ class _TelaCapituloState extends State<TelaCapitulo> {
                               texto: cena != null &&
                                       (cena.concluiAmbiente ||
                                           cena.tipo == TipoCena.fim)
-                                  ? 'PRÃ“XIMO CAPÃTULO'
+                                  ? 'PRÓXIMO CAPÍTULO'
                                   : 'CONTINUAR',
                               onPressed: _avancarCena,
                             ),

@@ -57,7 +57,7 @@ class TelaEsperaGps extends StatelessWidget {
                       const SizedBox(height: 6),
                       const SizedBox(height: 10),
                       const Text(
-                        'VÃ¡ fisicamente atÃ© este local para liberar o ambiente.',
+                        'Vá fisicamente até este local para liberar o ambiente.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white,
@@ -86,7 +86,7 @@ class TelaEsperaGps extends StatelessWidget {
                           ),
                         ),
                       BotaoJogo(
-                        texto: 'VERIFICAR LOCALIZAÃ‡ÃƒO',
+                        texto: 'VERIFICAR LOCALIZAÇÃO',
                         onPressed: simulando ? null : onVerificar,
                       ),
                       const SizedBox(height: 8),

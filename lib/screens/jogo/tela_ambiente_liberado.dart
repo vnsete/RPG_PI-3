@@ -75,7 +75,7 @@ class TelaAmbienteLiberado extends StatelessWidget {
                       ),
                       const SizedBox(height: 18),
                       BotaoJogo(
-                        texto: 'INICIAR INTERAÃ‡ÃƒO',
+                        texto: 'INICIAR INTERAÇÃO',
                         onPressed: onIniciarInteracao,
                       ),
                     ],

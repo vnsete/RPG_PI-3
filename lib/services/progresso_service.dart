@@ -24,6 +24,66 @@ class ProgressoService {
     await prefs.setInt(_indiceAmbienteKey, indice);
   }
 
+  Future<int> carregarProgresso() {
+    return carregarIndiceAmbiente();
+  }
+
+  Future<void> salvarProgresso({
+    required int indiceAmbienteAtual,
+    required String ambienteAtualId,
+    required String ambienteAtualNome,
+    required bool ambienteLiberado,
+    required bool interacaoIniciada,
+    int indiceCenaAtual = 0,
+    bool jogoFinalizado = false,
+    double? ultimaDistanciaMetros,
+  }) async {
+    await salvarIndiceAmbiente(indiceAmbienteAtual);
+
+    await _documentoJogadorTeste.set(
+      {
+        'status': 'progresso_salvo',
+        'modo_teste': true,
+        'ambiente_indice': indiceAmbienteAtual,
+        'ambiente_id': ambienteAtualId,
+        'ambiente_nome': ambienteAtualNome,
+        'ambiente_liberado': ambienteLiberado,
+        'interacao_iniciada': interacaoIniciada,
+        'indice_cena_atual': indiceCenaAtual,
+        'jogo_finalizado': jogoFinalizado,
+        if (ultimaDistanciaMetros != null)
+          'ultima_distancia_metros': ultimaDistanciaMetros,
+        'atualizado_em': FieldValue.serverTimestamp(),
+      },
+      SetOptions(merge: true),
+    );
+  }
+
+  Future<void> salvarEscolha({
+    required String ambienteId,
+    required String escolha,
+    int? indiceCena,
+    int? proximaCena,
+  }) async {
+    await _documentoJogadorTeste.set(
+      {
+        'ultima_escolha': {
+          'ambiente_id': ambienteId,
+          'texto': escolha,
+          if (indiceCena != null) 'indice_cena': indiceCena,
+          if (proximaCena != null) 'proxima_cena': proximaCena,
+          'registrada_em': FieldValue.serverTimestamp(),
+        },
+        'atualizado_em': FieldValue.serverTimestamp(),
+      },
+      SetOptions(merge: true),
+    );
+  }
+
+  Future<void> reiniciarProgresso() {
+    return reiniciar();
+  }
+
   Future<void> registrarSimulacaoTeste({
     required int indiceAmbiente,
     required String ambienteId,

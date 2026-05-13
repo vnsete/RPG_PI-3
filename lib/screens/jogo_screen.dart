@@ -64,7 +64,7 @@ class _JogoScreenState extends State<JogoScreen> {
           _ambienteLiberado = false;
           _interacaoIniciada = false;
           _mensagemGps =
-              'Voce ainda esta a ${distancia.toStringAsFixed(0)} metros de ${_ambienteAtual.nome}.';
+              'Você ainda está a ${distancia.toStringAsFixed(0)} metros de ${_ambienteAtual.nome}.';
         });
       }
     } catch (e) {
@@ -81,7 +81,7 @@ class _JogoScreenState extends State<JogoScreen> {
   Future<void> _simularChegadaTeste() async {
     setState(() {
       _salvandoTeste = true;
-      _mensagemGps = 'Salvando simulacao no Firebase...';
+      _mensagemGps = 'Salvando simulação no Firebase...';
     });
 
     try {
@@ -95,7 +95,7 @@ class _JogoScreenState extends State<JogoScreen> {
 
       setState(() {
         _salvandoTeste = false;
-        _mensagemGps = 'Nao foi possivel salvar no Firebase: $e';
+        _mensagemGps = 'Não foi possível salvar no Firebase: $e';
       });
       return;
     }
@@ -108,7 +108,7 @@ class _JogoScreenState extends State<JogoScreen> {
       _ambienteLiberado = true;
       _interacaoIniciada = true;
       _distanciaMetros = 0;
-      _mensagemGps = 'Simulacao de teste: capitulo iniciado.';
+      _mensagemGps = 'Simulação de teste: capítulo iniciado.';
     });
   }
 
