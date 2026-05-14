@@ -27,8 +27,6 @@ class BotaoJogo extends StatelessWidget {
         child: Text(
           texto,
           textAlign: TextAlign.center,
-          maxLines: 3,
-          overflow: TextOverflow.ellipsis,
           style: const TextStyle(
             fontSize: 15,
             height: 1.15,

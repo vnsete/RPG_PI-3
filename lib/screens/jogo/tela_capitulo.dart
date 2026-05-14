@@ -8,12 +8,17 @@ class TelaCapitulo extends StatefulWidget {
   final Ambiente ambiente;
   final List<Cena> cenas;
   final VoidCallback onConcluir;
+  final void Function({
+    required int indiceCena,
+    required OpcaoCena opcao,
+  }) onEscolhaSelecionada;
 
   const TelaCapitulo({
     super.key,
     required this.ambiente,
     required this.cenas,
     required this.onConcluir,
+    required this.onEscolhaSelecionada,
   });
 
   @override
@@ -50,92 +55,133 @@ class _TelaCapituloState extends State<TelaCapitulo> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final cena = _cenaAtual;
-    final imagem = cena?.imagem ?? widget.ambiente.imagemEspera;
+  Widget _opcoesCena(Cena cena) {
+    final alturaMaxima = MediaQuery.sizeOf(context).height * 0.48;
 
-    return Scaffold(
-      body: Stack(
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: alturaMaxima),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: cena.opcoes
+              .map(
+                (opcao) => Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: BotaoJogo(
+                    texto: opcao.texto,
+                    onPressed: () {
+                      widget.onEscolhaSelecionada(
+                        indiceCena: _indiceCena,
+                        opcao: opcao,
+                      );
+                      _avancarCena(opcao.proximaCena);
+                    },
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _sombraInferior() {
+    return const DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.transparent,
+            Color(0x99000000),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _conteudoInferior(Cena? cena) {
+    return SafeArea(
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: cena != null && cena.tipo == TipoCena.escolha
+              ? _opcoesCena(cena)
+              : _indicadorToque(),
+        ),
+      ),
+    );
+  }
+
+  Widget _corpoCapitulo({
+    required String imagem,
+    required Cena? cena,
+    required bool podeTocarNaTela,
+  }) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: podeTocarNaTela ? () => _avancarCena() : null,
+      child: Stack(
         fit: StackFit.expand,
         children: [
           Image.asset(
             imagem,
             fit: BoxFit.cover,
           ),
-          Container(
-            color: Colors.black.withValues(alpha: 0.35),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 220,
+            child: _sombraInferior(),
           ),
-          SafeArea(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                width: double.infinity,
-                margin: const EdgeInsets.all(16),
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.82),
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: Colors.white24),
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Capítulo ${widget.ambiente.ordem}',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.amber,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        widget.ambiente.nome,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        cena?.texto ?? widget.ambiente.descricao,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          height: 1.35,
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-                      if (cena != null && cena.tipo == TipoCena.escolha)
-                        ...cena.opcoes.map(
-                          (opcao) => Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: BotaoJogo(
-                              texto: opcao.texto,
-                              onPressed: () =>
-                                  _avancarCena(opcao.proximaCena),
-                            ),
-                          ),
-                        )
-                      else
-                        BotaoJogo(
-                          texto: cena != null &&
-                                  (cena.concluiAmbiente ||
-                                      cena.tipo == TipoCena.fim)
-                              ? 'PRÓXIMO CAPÍTULO'
-                              : 'CONTINUAR',
-                          onPressed: _avancarCena,
-                        ),
-                    ],
-                  ),
-                ),
-              ),
+          _conteudoInferior(cena),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cena = _cenaAtual;
+    final imagem = cena?.imagem ?? widget.ambiente.imagemEspera;
+    final podeTocarNaTela = cena == null || cena.tipo != TipoCena.escolha;
+
+    return Scaffold(
+      body: _corpoCapitulo(
+        imagem: imagem,
+        cena: cena,
+        podeTocarNaTela: podeTocarNaTela,
+      ),
+    );
+  }
+
+  static Widget _indicadorToque() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.58),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white24),
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.touch_app_rounded,
+            color: Colors.white,
+            size: 18,
+          ),
+          SizedBox(width: 8),
+          Text(
+            'TOQUE NA TELA PARA CONTINUAR',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0,
             ),
           ),
         ],

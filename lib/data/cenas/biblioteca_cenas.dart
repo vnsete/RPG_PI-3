@@ -1,7 +1,6 @@
 import '../../models/cena.dart';
 
-const String _imagemBiblioteca =
-    'assets/images/ambiente_biblioteca/ambiente_2_espera.png';
+const String _imagemBiblioteca = 'assets/images/fotos_projeto/8.png';
 
 const List<Cena> bibliotecaCenas = [
   Cena(
@@ -13,7 +12,7 @@ const List<Cena> bibliotecaCenas = [
   ),
   Cena(
     tipo: TipoCena.escolha,
-    imagem: _imagemBiblioteca,
+    imagem: 'assets/images/fotos_projeto/9.png',
     texto:
         'Ibrahim: Fica quieto, mano! Controla essa respiracao, ta procurando o Thiago ne? Ele pegou um livro e saiu correndo, nem cadastrou o emprestimo com a recepcionista. Ate brigaram com ele, mas ele nao parou.',
     opcoes: [
@@ -31,21 +30,21 @@ const List<Cena> bibliotecaCenas = [
   ),
   Cena(
     tipo: TipoCena.resposta,
-    imagem: _imagemBiblioteca,
+    imagem: 'assets/images/fotos_projeto/10.png',
     texto:
         'Ibrahim: Nao vi nada nao, mas pelo desespero dele, parecia estar rezando. Quem sabe nao foi fazer isso no local certo.',
     proximaCena: 4,
   ),
   Cena(
     tipo: TipoCena.resposta,
-    imagem: _imagemBiblioteca,
+    imagem: 'assets/images/fotos_projeto/11.png',
     texto:
         'Ibrahim: Cala a boca! Jaja o seguranca aparece. Ele saiu delirando que precisava de um lugar sozinho, mais calmo que aqui.',
     proximaCena: 4,
   ),
   Cena(
     tipo: TipoCena.fala,
-    imagem: _imagemBiblioteca,
+    imagem: 'assets/images/fotos_projeto/12.png',
     texto:
         'A Capela! Valeu, mano, voce me salvou! Mova-se ate a Capela para iniciar a proxima etapa.',
     concluiAmbiente: true,

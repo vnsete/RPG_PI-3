@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../data/ambientes_mock.dart';
 import '../data/cenas_mock.dart';
 import '../models/ambiente.dart';
+import '../models/cena.dart';
 import '../services/localizacao_service.dart';
 import '../services/progresso_service.dart';
+import '../widgets/botao_jogo.dart';
 import 'jogo/tela_ambiente_liberado.dart';
 import 'jogo/tela_capitulo.dart';
 import 'jogo/tela_espera_gps.dart';
@@ -22,15 +26,44 @@ class _JogoScreenState extends State<JogoScreen> {
 
   int _indiceAmbiente = 0;
   int _versaoCapitulo = 0;
+  bool _carregandoProgresso = true;
   bool _verificandoGps = false;
   bool _salvandoTeste = false;
   bool _ambienteLiberado = false;
   bool _interacaoIniciada = false;
+  bool _jogoFinalizado = false;
 
   String? _mensagemGps;
   double? _distanciaMetros;
 
   Ambiente get _ambienteAtual => ambientes[_indiceAmbiente];
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_carregarProgressoSalvo());
+  }
+
+  Future<void> _carregarProgressoSalvo() async {
+    try {
+      final indiceSalvo = await _progressoService.carregarProgresso();
+      final indiceSeguro = indiceSalvo.clamp(0, ambientes.length - 1).toInt();
+
+      if (!mounted) return;
+
+      setState(() {
+        _indiceAmbiente = indiceSeguro;
+        _carregandoProgresso = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _carregandoProgresso = false;
+        _mensagemGps = 'Nao foi possivel carregar o progresso salvo: $e';
+      });
+    }
+  }
 
   Future<void> _verificarLocalizacao() async {
     setState(() {
@@ -41,6 +74,8 @@ class _JogoScreenState extends State<JogoScreen> {
 
     try {
       final posicao = await _localizacaoService.obterPosicaoAtual();
+
+      if (!mounted) return;
 
       final distancia = _localizacaoService.calcularDistanciaMetros(
         origemLat: posicao.latitude,
@@ -57,6 +92,7 @@ class _JogoScreenState extends State<JogoScreen> {
         setState(() {
           _ambienteLiberado = true;
           _interacaoIniciada = false;
+          _jogoFinalizado = false;
           _mensagemGps = 'Local confirmado! Ambiente liberado.';
         });
       } else {
@@ -64,24 +100,28 @@ class _JogoScreenState extends State<JogoScreen> {
           _ambienteLiberado = false;
           _interacaoIniciada = false;
           _mensagemGps =
-              'Você ainda está a ${distancia.toStringAsFixed(0)} metros de ${_ambienteAtual.nome}.';
+              'Voce ainda esta a ${distancia.toStringAsFixed(0)} metros de ${_ambienteAtual.nome}.';
         });
       }
     } catch (e) {
+      if (!mounted) return;
+
       setState(() {
         _mensagemGps = e.toString().replaceAll('Exception: ', '');
       });
     } finally {
-      setState(() {
-        _verificandoGps = false;
-      });
+      if (mounted) {
+        setState(() {
+          _verificandoGps = false;
+        });
+      }
     }
   }
 
   Future<void> _simularChegadaTeste() async {
     setState(() {
       _salvandoTeste = true;
-      _mensagemGps = 'Salvando simulação no Firebase...';
+      _mensagemGps = 'Salvando simulacao no Firebase...';
     });
 
     try {
@@ -95,7 +135,7 @@ class _JogoScreenState extends State<JogoScreen> {
 
       setState(() {
         _salvandoTeste = false;
-        _mensagemGps = 'Não foi possível salvar no Firebase: $e';
+        _mensagemGps = 'Nao foi possivel salvar no Firebase: $e';
       });
       return;
     }
@@ -107,8 +147,9 @@ class _JogoScreenState extends State<JogoScreen> {
       _versaoCapitulo++;
       _ambienteLiberado = true;
       _interacaoIniciada = true;
+      _jogoFinalizado = false;
       _distanciaMetros = 0;
-      _mensagemGps = 'Simulação de teste: capítulo iniciado.';
+      _mensagemGps = 'Simulacao de teste: capitulo iniciado.';
     });
   }
 
@@ -116,6 +157,7 @@ class _JogoScreenState extends State<JogoScreen> {
     setState(() {
       _versaoCapitulo++;
       _interacaoIniciada = true;
+      _jogoFinalizado = false;
     });
   }
 
@@ -124,12 +166,21 @@ class _JogoScreenState extends State<JogoScreen> {
       final proximoIndice = _indiceAmbiente + 1;
       final proximoAmbiente = ambientes[proximoIndice];
 
-      await _progressoService.registrarAmbienteConcluidoTeste(
-        indiceAmbiente: proximoIndice,
-        ambienteId: proximoAmbiente.id,
-        ambienteNome: proximoAmbiente.nome,
-        jogoFinalizado: false,
-      );
+      try {
+        await _progressoService.registrarAmbienteConcluidoTeste(
+          indiceAmbiente: proximoIndice,
+          ambienteId: proximoAmbiente.id,
+          ambienteNome: proximoAmbiente.nome,
+          jogoFinalizado: false,
+        );
+      } catch (e) {
+        if (!mounted) return;
+
+        setState(() {
+          _mensagemGps = 'Nao foi possivel salvar o progresso: $e';
+        });
+        return;
+      }
 
       if (!mounted) return;
 
@@ -137,29 +188,140 @@ class _JogoScreenState extends State<JogoScreen> {
         _indiceAmbiente = proximoIndice;
         _ambienteLiberado = false;
         _interacaoIniciada = false;
+        _jogoFinalizado = false;
         _mensagemGps = null;
         _distanciaMetros = null;
       });
     } else {
-      await _progressoService.registrarAmbienteConcluidoTeste(
-        indiceAmbiente: _indiceAmbiente,
-        ambienteId: _ambienteAtual.id,
-        ambienteNome: _ambienteAtual.nome,
-        jogoFinalizado: true,
-      );
+      try {
+        await _progressoService.registrarAmbienteConcluidoTeste(
+          indiceAmbiente: _indiceAmbiente,
+          ambienteId: _ambienteAtual.id,
+          ambienteNome: _ambienteAtual.nome,
+          jogoFinalizado: true,
+        );
+      } catch (e) {
+        if (!mounted) return;
+
+        setState(() {
+          _mensagemGps = 'Nao foi possivel salvar o fim do jogo: $e';
+        });
+        return;
+      }
 
       if (!mounted) return;
 
       setState(() {
         _ambienteLiberado = false;
         _interacaoIniciada = false;
+        _jogoFinalizado = true;
         _mensagemGps = 'Fim do jogo!';
       });
     }
   }
 
+  void _registrarEscolha({
+    required int indiceCena,
+    required OpcaoCena opcao,
+  }) {
+    unawaited(_registrarEscolhaAsync(indiceCena: indiceCena, opcao: opcao));
+  }
+
+  Future<void> _registrarEscolhaAsync({
+    required int indiceCena,
+    required OpcaoCena opcao,
+  }) async {
+    try {
+      await _progressoService.salvarEscolha(
+        ambienteId: _ambienteAtual.id,
+        escolha: opcao.texto,
+        indiceCena: indiceCena,
+        proximaCena: opcao.proximaCena,
+      );
+    } catch (_) {
+      // A escolha continua funcionando mesmo se o registro remoto falhar.
+    }
+  }
+
+  Future<void> _reiniciarJogo() async {
+    setState(() {
+      _salvandoTeste = true;
+      _mensagemGps = null;
+    });
+
+    try {
+      await _progressoService.reiniciar();
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _salvandoTeste = false;
+        _mensagemGps = 'Nao foi possivel reiniciar no Firebase: $e';
+      });
+      return;
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _indiceAmbiente = 0;
+      _versaoCapitulo++;
+      _carregandoProgresso = false;
+      _verificandoGps = false;
+      _salvandoTeste = false;
+      _ambienteLiberado = false;
+      _interacaoIniciada = false;
+      _jogoFinalizado = false;
+      _mensagemGps = null;
+      _distanciaMetros = null;
+    });
+  }
+
+  Widget _telaCarregandoProgresso() {
+    return const Scaffold(
+      backgroundColor: Color(0xFF0050A8),
+      body: Center(
+        child: CircularProgressIndicator(color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _telaFimJogo() {
+    return Scaffold(
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets/images/fotos_projeto/46.png',
+            fit: BoxFit.cover,
+          ),
+          SafeArea(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: BotaoJogo(
+                  texto: _salvandoTeste ? 'REINICIANDO...' : 'JOGAR NOVAMENTE',
+                  onPressed: _salvandoTeste ? null : _reiniciarJogo,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_carregandoProgresso) {
+      return _telaCarregandoProgresso();
+    }
+
+    if (_jogoFinalizado) {
+      return _telaFimJogo();
+    }
+
     if (_ambienteLiberado && !_interacaoIniciada) {
       return TelaAmbienteLiberado(
         ambiente: _ambienteAtual,
@@ -174,6 +336,7 @@ class _JogoScreenState extends State<JogoScreen> {
         ambiente: _ambienteAtual,
         cenas: cenasPorAmbiente[_ambienteAtual.id] ?? const [],
         onConcluir: _proximoAmbienteTeste,
+        onEscolhaSelecionada: _registrarEscolha,
       );
     }
 

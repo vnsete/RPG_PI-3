@@ -27,14 +27,14 @@ const List<Cena> pracaAlimentacaoCenas = [
   ),
   Cena(
     tipo: TipoCena.resposta,
-    imagem: 'assets/images/ambiente_praca/praca_resposta_a.png',
+    imagem: 'assets/images/fotos_projeto/A.png',
     texto:
         'Felipe: Relaxa, ha uns 15 minutos vi ele passar meio neurotico tambem. Falou que esqueceu de formatar a citacao de um livro da documentacao nas normas ABNT e foi procurar o livro fisico para nao perder ponto com a banca.',
     proximaCena: 4,
   ),
   Cena(
     tipo: TipoCena.resposta,
-    imagem: 'assets/images/ambiente_praca/praca_resposta_b.png',
+    imagem: 'assets/images/fotos_projeto/B.png',
     texto:
         'Felipe: Calma ai, respira! Se ajuda, vi ele passar aqui um tempo ja... Disse que esqueceu de formatar a citacao de um livro de engenharia de software nas normas ABNT da documentacao do projeto e foi procurar o livro fisico para nao perder ponto com a banca.',
     proximaCena: 4,

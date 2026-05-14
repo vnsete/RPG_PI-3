@@ -1,6 +1,6 @@
 import '../../models/cena.dart';
 
-const String _imagemCapela = 'assets/images/tela_inicial.png';
+const String _imagemCapela = 'assets/images/fotos_projeto/14.png';
 
 const List<Cena> capelaCenas = [
   Cena(
@@ -12,14 +12,14 @@ const List<Cena> capelaCenas = [
   ),
   Cena(
     tipo: TipoCena.fala,
-    imagem: _imagemCapela,
+    imagem: 'assets/images/fotos_projeto/15.png',
     texto:
         'Nao e possivel, ele deve estar brincando comigo. A apresentacao e as 21:30 e ja sao 19:30. Fiquei sem presenca na primeira aula por culpa dele. Voce viu um moleque besta passando por aqui?',
     proximaCena: 2,
   ),
   Cena(
     tipo: TipoCena.escolha,
-    imagem: _imagemCapela,
+    imagem: 'assets/images/fotos_projeto/16.png',
     texto:
         'Seu Joao: Boa noite jovem, como vai? Sabia que e de bom tom perguntar como os outros estao? Chama-se educacao!',
     opcoes: [
@@ -35,51 +35,42 @@ const List<Cena> capelaCenas = [
     ],
   ),
   Cena(
-    tipo: TipoCena.resposta,
-    imagem: _imagemCapela,
+    tipo: TipoCena.escolha,
+    imagem: 'assets/images/fotos_projeto/17.png',
     texto:
         'Seu Joao: Vi sim, mas nao vai ter essa informacao facil nao. Para ficar como licao de vida, me diga qual o resultado dessa expressao de matematica discreta. Se ate o Seu Joao sabe, voce TEM que saber tambem.',
-    proximaCena: 5,
-  ),
-  Cena(
-    tipo: TipoCena.resposta,
-    imagem: _imagemCapela,
-    texto:
-        'Seu Joao: Que falta de respeito! Para ficar como licao de vida e aprender a respeitar os mais velhos, me diga qual o resultado dessa expressao de matematica discreta. Quem sabe eu tenha visto ele por aqui...',
-    proximaCena: 5,
+    opcoes: [
+      OpcaoCena(texto: 'V', proximaCena: 5),
+      OpcaoCena(texto: 'F', proximaCena: 6),
+    ],
   ),
   Cena(
     tipo: TipoCena.escolha,
-    imagem: _imagemCapela,
-    texto: 'Resolva de cabeca: ((V -> V) <-> F) ^ ~F',
+    imagem: 'assets/images/fotos_projeto/18.png',
+    texto:
+        'Seu Joao: Que falta de respeito! Para ficar como licao de vida e aprender a respeitar os mais velhos, me diga qual o resultado dessa expressao de matematica discreta. Quem sabe eu tenha visto ele por aqui...',
     opcoes: [
-      OpcaoCena(
-        texto: 'V',
-        proximaCena: 6,
-      ),
-      OpcaoCena(
-        texto: 'F',
-        proximaCena: 7,
-      ),
+      OpcaoCena(texto: 'V', proximaCena: 5),
+      OpcaoCena(texto: 'F', proximaCena: 6),
     ],
   ),
   Cena(
     tipo: TipoCena.resposta,
-    imagem: _imagemCapela,
+    imagem: 'assets/images/fotos_projeto/19.png',
     texto:
         'Seu Joao: E, jovem... Tem que estudar mais, mas so porque ja passei por um TCC, vou te ajudar. Ele falou que precisava pegar a chave de algum laboratorio do H15 para testar uma API na rede dos alunos, que um fire alguma coisa ia travar. Ele deve ter ido pra la.',
-    proximaCena: 8,
+    proximaCena: 7,
   ),
   Cena(
     tipo: TipoCena.resposta,
-    imagem: _imagemCapela,
+    imagem: 'assets/images/fotos_projeto/20.png',
     texto:
         'Seu Joao: Ai sim, muito bem. Seu colega falou que precisava pegar a chave de algum laboratorio do H15 para testar uma API na rede dos alunos, que um fire alguma coisa ia travar. Ele deve ter ido pra la.',
-    proximaCena: 8,
+    proximaCena: 7,
   ),
   Cena(
     tipo: TipoCena.fala,
-    imagem: _imagemCapela,
+    imagem: 'assets/images/fotos_projeto/21.png',
     texto:
         'Obrigado Seu Joao, e desculpe pela desconsideracao, nao vai se repetir. Seu Joao completou o quebra-cabeca: o Thiago nao estava fugindo, esta tentando salvar o nosso TCC. Mova-se ate o predio H15 para iniciar a proxima etapa.',
     concluiAmbiente: true,
