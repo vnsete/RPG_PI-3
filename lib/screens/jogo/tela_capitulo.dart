@@ -23,8 +23,6 @@ class TelaCapitulo extends StatefulWidget {
 class _TelaCapituloState extends State<TelaCapitulo> {
   int _indiceCena = 0;
 
-  bool get _usaImagemComTexto => widget.ambiente.id == 'praca_alimentacao';
-
   Cena? get _cenaAtual {
     if (widget.cenas.isEmpty || _indiceCena >= widget.cenas.length) {
       return null;
@@ -52,32 +50,6 @@ class _TelaCapituloState extends State<TelaCapitulo> {
     }
   }
 
-  Widget _botoesCena(Cena? cena) {
-    if (cena != null && cena.tipo == TipoCena.escolha) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: cena.opcoes
-            .map(
-              (opcao) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: BotaoJogo(
-                  texto: opcao.texto,
-                  onPressed: () => _avancarCena(opcao.proximaCena),
-                ),
-              ),
-            )
-            .toList(),
-      );
-    }
-
-    return BotaoJogo(
-      texto: cena != null && (cena.concluiAmbiente || cena.tipo == TipoCena.fim)
-          ? 'PRÓXIMO CAPÍTULO'
-          : 'CONTINUAR',
-      onPressed: _avancarCena,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final cena = _cenaAtual;
@@ -97,76 +69,73 @@ class _TelaCapituloState extends State<TelaCapitulo> {
           SafeArea(
             child: Align(
               alignment: Alignment.bottomCenter,
-              child: _usaImagemComTexto
-                  ? Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: _botoesCena(cena),
-                    )
-                  : Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.all(16),
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.82),
-                        borderRadius: BorderRadius.circular(22),
-                        border: Border.all(color: Colors.white24),
+              child: Container(
+                width: double.infinity,
+                margin: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.82),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: Colors.white24),
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Capítulo ${widget.ambiente.ordem}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.amber,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Capítulo ${widget.ambiente.ordem}',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.amber,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            widget.ambiente.nome,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            cena?.texto ?? widget.ambiente.descricao,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              height: 1.35,
-                            ),
-                          ),
-                          const SizedBox(height: 18),
-                          if (cena != null && cena.tipo == TipoCena.escolha)
-                            ...cena.opcoes.map(
-                              (opcao) => Padding(
-                                padding: const EdgeInsets.only(bottom: 10),
-                                child: BotaoJogo(
-                                  texto: opcao.texto,
-                                  onPressed: () =>
-                                      _avancarCena(opcao.proximaCena),
-                                ),
-                              ),
-                            )
-                          else
-                            BotaoJogo(
-                              texto: cena != null &&
-                                      (cena.concluiAmbiente ||
-                                          cena.tipo == TipoCena.fim)
-                                  ? 'PRÓXIMO CAPÍTULO'
-                                  : 'CONTINUAR',
-                              onPressed: _avancarCena,
-                            ),
-                        ],
+                      const SizedBox(height: 6),
+                      Text(
+                        widget.ambiente.nome,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 12),
+                      Text(
+                        cena?.texto ?? widget.ambiente.descricao,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          height: 1.35,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      if (cena != null && cena.tipo == TipoCena.escolha)
+                        ...cena.opcoes.map(
+                          (opcao) => Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: BotaoJogo(
+                              texto: opcao.texto,
+                              onPressed: () =>
+                                  _avancarCena(opcao.proximaCena),
+                            ),
+                          ),
+                        )
+                      else
+                        BotaoJogo(
+                          texto: cena != null &&
+                                  (cena.concluiAmbiente ||
+                                      cena.tipo == TipoCena.fim)
+                              ? 'PRÓXIMO CAPÍTULO'
+                              : 'CONTINUAR',
+                          onPressed: _avancarCena,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ],
