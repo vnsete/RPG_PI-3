@@ -39,62 +39,67 @@ class TelaEsperaGps extends StatelessWidget {
           ),
           SafeArea(
             child: Align(
-              alignment: Alignment.bottomCenter,
+              alignment: Alignment.topCenter,
               child: Container(
                 width: double.infinity,
-                constraints: const BoxConstraints(maxHeight: 360),
-                margin: const EdgeInsets.all(16),
-                padding: const EdgeInsets.all(18),
+                constraints: const BoxConstraints(
+                  maxWidth: 420,
+                  maxHeight: 220,
+                ),
+                margin: const EdgeInsets.fromLTRB(16, 66, 16, 0),
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.78),
-                  borderRadius: BorderRadius.circular(22),
+                  color: Colors.black.withValues(alpha: 0.72),
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: Colors.white24),
                 ),
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const SizedBox(height: 6),
-                      const SizedBox(height: 10),
                       const Text(
                         'Vá fisicamente até este local para liberar o ambiente.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 16,
-                          height: 1.3,
+                          fontSize: 13,
+                          height: 1.2,
                         ),
                       ),
                       if (mensagemGps != null) ...[
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 8),
                         Text(
                           mensagemGps!,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: Colors.white70,
-                            fontSize: 14,
-                            height: 1.3,
+                            fontSize: 12,
+                            height: 1.2,
                           ),
                         ),
                       ],
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 10),
                       if (verificandoGps)
                         const Padding(
-                          padding: EdgeInsets.only(bottom: 14),
+                          padding: EdgeInsets.only(bottom: 10),
                           child: CircularProgressIndicator(
                             color: Colors.white,
+                            strokeWidth: 3,
                           ),
                         ),
                       BotaoJogo(
                         texto: 'VERIFICAR LOCALIZAÇÃO',
                         onPressed: simulando ? null : onVerificar,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 4),
                       TextButton(
                         onPressed: simulando ? null : onSimular,
                         child: const Text(
                           'SIMULAR CHEGADA (apenas teste)',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                     ],

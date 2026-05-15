@@ -9,7 +9,6 @@ import '../models/cena.dart';
 import '../services/localizacao_service.dart';
 import '../services/progresso_service.dart';
 import '../widgets/botao_jogo.dart';
-import 'jogo/tela_ambiente_liberado.dart';
 import 'jogo/tela_capitulo.dart';
 import 'jogo/tela_espera_gps.dart';
 
@@ -35,6 +34,7 @@ class _JogoScreenState extends State<JogoScreen> {
 
   String? _mensagemGps;
   double? _distanciaMetros;
+  Timer? _monitoramentoLocalizacao;
 
   Ambiente get _ambienteAtual => ambientes[_indiceAmbiente];
 
@@ -42,6 +42,32 @@ class _JogoScreenState extends State<JogoScreen> {
   void initState() {
     super.initState();
     unawaited(_carregarProgressoSalvo());
+  }
+
+  @override
+  void dispose() {
+    _pararMonitoramentoLocalizacao();
+    super.dispose();
+  }
+
+  void _iniciarMonitoramentoLocalizacao() {
+    _monitoramentoLocalizacao ??= Timer.periodic(
+      const Duration(seconds: 8),
+      (_) {
+        if (!_carregandoProgresso &&
+            !_jogoFinalizado &&
+            !_ambienteLiberado &&
+            !_interacaoIniciada &&
+            !_verificandoGps) {
+          unawaited(_verificarLocalizacao());
+        }
+      },
+    );
+  }
+
+  void _pararMonitoramentoLocalizacao() {
+    _monitoramentoLocalizacao?.cancel();
+    _monitoramentoLocalizacao = null;
   }
 
   Future<void> _carregarProgressoSalvo() async {
@@ -55,6 +81,7 @@ class _JogoScreenState extends State<JogoScreen> {
         _indiceAmbiente = indiceSeguro;
         _carregandoProgresso = false;
       });
+      _iniciarMonitoramentoLocalizacao();
     } catch (e) {
       if (!mounted) return;
 
@@ -89,11 +116,13 @@ class _JogoScreenState extends State<JogoScreen> {
       });
 
       if (distancia <= _ambienteAtual.raioMetros) {
+        _pararMonitoramentoLocalizacao();
         setState(() {
+          _versaoCapitulo++;
           _ambienteLiberado = true;
-          _interacaoIniciada = false;
+          _interacaoIniciada = true;
           _jogoFinalizado = false;
-          _mensagemGps = 'Local confirmado! Ambiente liberado.';
+          _mensagemGps = 'Local confirmado! Capitulo iniciado.';
         });
       } else {
         setState(() {
@@ -153,14 +182,6 @@ class _JogoScreenState extends State<JogoScreen> {
     });
   }
 
-  void _iniciarInteracao() {
-    setState(() {
-      _versaoCapitulo++;
-      _interacaoIniciada = true;
-      _jogoFinalizado = false;
-    });
-  }
-
   Future<void> _proximoAmbienteTeste() async {
     if (_indiceAmbiente < ambientes.length - 1) {
       final proximoIndice = _indiceAmbiente + 1;
@@ -192,6 +213,7 @@ class _JogoScreenState extends State<JogoScreen> {
         _mensagemGps = null;
         _distanciaMetros = null;
       });
+      _iniciarMonitoramentoLocalizacao();
     } else {
       try {
         await _progressoService.registrarAmbienteConcluidoTeste(
@@ -217,6 +239,7 @@ class _JogoScreenState extends State<JogoScreen> {
         _jogoFinalizado = true;
         _mensagemGps = 'Fim do jogo!';
       });
+      _pararMonitoramentoLocalizacao();
     }
   }
 
@@ -275,6 +298,7 @@ class _JogoScreenState extends State<JogoScreen> {
       _mensagemGps = null;
       _distanciaMetros = null;
     });
+    _iniciarMonitoramentoLocalizacao();
   }
 
   Widget _telaCarregandoProgresso() {
@@ -292,7 +316,7 @@ class _JogoScreenState extends State<JogoScreen> {
         fit: StackFit.expand,
         children: [
           Image.asset(
-            'assets/images/fotos_projeto/46.png',
+            'assets/images/ambiente_sala_10a/46.png',
             fit: BoxFit.cover,
           ),
           SafeArea(
@@ -320,14 +344,6 @@ class _JogoScreenState extends State<JogoScreen> {
 
     if (_jogoFinalizado) {
       return _telaFimJogo();
-    }
-
-    if (_ambienteLiberado && !_interacaoIniciada) {
-      return TelaAmbienteLiberado(
-        ambiente: _ambienteAtual,
-        distancia: _distanciaMetros,
-        onIniciarInteracao: _iniciarInteracao,
-      );
     }
 
     if (_ambienteLiberado && _interacaoIniciada) {

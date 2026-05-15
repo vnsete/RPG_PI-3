@@ -31,7 +31,7 @@ const List<Ambiente> ambientes = [
     latitude: -22.832860783549506,
     longitude: -47.05080775385053,
     raioMetros: 30,
-    imagemEspera: 'assets/images/fotos_projeto/14.png',
+    imagemEspera: 'assets/images/ambiente_capela/ambiente_3_espera.png',
   ),
   Ambiente(
     id: 'h15',
@@ -41,7 +41,7 @@ const List<Ambiente> ambientes = [
     latitude: -22.83396897169469,
     longitude: -47.05273805822132,
     raioMetros: 30,
-    imagemEspera: 'assets/images/fotos_projeto/23.png',
+    imagemEspera: 'assets/images/ambiente_h15/ambiente_4_espera.png',
   ),
   Ambiente(
     id: 'sala_10a',
@@ -51,6 +51,6 @@ const List<Ambiente> ambientes = [
     latitude: -22.833977623740008,
     longitude: -47.052506717692836,
     raioMetros: 12,
-    imagemEspera: 'assets/images/fotos_projeto/38.png',
+    imagemEspera: 'assets/images/ambiente_sala_10a/ambiente_5_espera.png',
   ),
 ];
