@@ -20,6 +20,8 @@ class JogoScreen extends StatefulWidget {
 }
 
 class _JogoScreenState extends State<JogoScreen> {
+  static const _proporcaoArte = 9 / 16;
+
   final LocalizacaoService _localizacaoService = LocalizacaoService();
   final ProgressoService _progressoService = ProgressoService();
 
@@ -266,7 +268,7 @@ class _JogoScreenState extends State<JogoScreen> {
     }
   }
 
-  Future<void> _reiniciarJogo() async {
+  Future<void> _voltarParaTelaInicial() async {
     setState(() {
       _salvandoTeste = true;
       _mensagemGps = null;
@@ -285,6 +287,11 @@ class _JogoScreenState extends State<JogoScreen> {
     }
 
     if (!mounted) return;
+
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+      return;
+    }
 
     setState(() {
       _indiceAmbiente = 0;
@@ -312,21 +319,40 @@ class _JogoScreenState extends State<JogoScreen> {
 
   Widget _telaFimJogo() {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Stack(
+        clipBehavior: Clip.none,
         fit: StackFit.expand,
         children: [
-          Image.asset(
-            'assets/images/ambiente_sala_10a/46.png',
-            fit: BoxFit.cover,
-          ),
-          SafeArea(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: BotaoJogo(
-                  texto: _salvandoTeste ? 'REINICIANDO...' : 'JOGAR NOVAMENTE',
-                  onPressed: _salvandoTeste ? null : _reiniciarJogo,
+          Center(
+            child: Transform.scale(
+              scale: 1.06,
+              child: AspectRatio(
+                aspectRatio: _proporcaoArte,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.asset(
+                      'assets/images/ambiente_sala_10a/46.png',
+                      fit: BoxFit.cover,
+                    ),
+                    SafeArea(
+                      minimum: const EdgeInsets.only(bottom: 18),
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: BotaoJogo(
+                            texto: _salvandoTeste
+                                ? 'VOLTANDO...'
+                                : 'VOLTAR AO INICIO',
+                            onPressed:
+                                _salvandoTeste ? null : _voltarParaTelaInicial,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -361,6 +387,7 @@ class _JogoScreenState extends State<JogoScreen> {
       verificandoGps: _verificandoGps,
       mensagemGps: _mensagemGps,
       distancia: _distanciaMetros,
+      mostrarBotaoVerificar: _indiceAmbiente == 0,
       onVerificar: _verificarLocalizacao,
       onSimular: _simularChegadaTeste,
       simulando: _salvandoTeste,

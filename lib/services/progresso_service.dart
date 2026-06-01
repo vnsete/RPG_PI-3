@@ -6,13 +6,29 @@ class ProgressoService {
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
   static const _indiceAmbienteKey = 'indice_ambiente_atual';
+  static const _jogadorIdKey = 'jogador_id';
   static const _colecaoProgresso = 'progresso_jogadores';
-  static const _jogadorTesteId = 'jogador_teste';
 
   final FirebaseFirestore _firestore;
 
-  DocumentReference<Map<String, dynamic>> get _documentoJogadorTeste =>
-      _firestore.collection(_colecaoProgresso).doc(_jogadorTesteId);
+  Future<String> _obterJogadorId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jogadorIdSalvo = prefs.getString(_jogadorIdKey);
+
+    if (jogadorIdSalvo != null && jogadorIdSalvo.isNotEmpty) {
+      return jogadorIdSalvo;
+    }
+
+    final jogadorId = 'jogador_${DateTime.now().microsecondsSinceEpoch}';
+    await prefs.setString(_jogadorIdKey, jogadorId);
+    return jogadorId;
+  }
+
+  Future<DocumentReference<Map<String, dynamic>>>
+      _obterDocumentoJogador() async {
+    final jogadorId = await _obterJogadorId();
+    return _firestore.collection(_colecaoProgresso).doc(jogadorId);
+  }
 
   Future<int> carregarIndiceAmbiente() async {
     final prefs = await SharedPreferences.getInstance();
@@ -39,11 +55,12 @@ class ProgressoService {
     double? ultimaDistanciaMetros,
   }) async {
     await salvarIndiceAmbiente(indiceAmbienteAtual);
+    final documentoJogador = await _obterDocumentoJogador();
 
-    await _documentoJogadorTeste.set(
+    await documentoJogador.set(
       {
         'status': 'progresso_salvo',
-        'modo_teste': true,
+        'jogador_id': documentoJogador.id,
         'ambiente_indice': indiceAmbienteAtual,
         'ambiente_id': ambienteAtualId,
         'ambiente_nome': ambienteAtualNome,
@@ -65,8 +82,11 @@ class ProgressoService {
     int? indiceCena,
     int? proximaCena,
   }) async {
-    await _documentoJogadorTeste.set(
+    final documentoJogador = await _obterDocumentoJogador();
+
+    await documentoJogador.set(
       {
+        'jogador_id': documentoJogador.id,
         'ultima_escolha': {
           'ambiente_id': ambienteId,
           'texto': escolha,
@@ -90,11 +110,12 @@ class ProgressoService {
     required String ambienteNome,
   }) async {
     await salvarIndiceAmbiente(indiceAmbiente);
+    final documentoJogador = await _obterDocumentoJogador();
 
-    await _documentoJogadorTeste.set(
+    await documentoJogador.set(
       {
         'status': 'capitulo_iniciado_teste',
-        'modo_teste': true,
+        'jogador_id': documentoJogador.id,
         'ambiente_indice': indiceAmbiente,
         'ambiente_id': ambienteId,
         'ambiente_nome': ambienteNome,
@@ -111,13 +132,14 @@ class ProgressoService {
     required bool jogoFinalizado,
   }) async {
     await salvarIndiceAmbiente(indiceAmbiente);
+    final documentoJogador = await _obterDocumentoJogador();
 
-    await _documentoJogadorTeste.set(
+    await documentoJogador.set(
       {
         'status': jogoFinalizado
             ? 'jogo_finalizado_teste'
             : 'ambiente_concluido_teste',
-        'modo_teste': true,
+        'jogador_id': documentoJogador.id,
         'ambiente_indice': indiceAmbiente,
         'ambiente_id': ambienteId,
         'ambiente_nome': ambienteNome,
@@ -131,11 +153,12 @@ class ProgressoService {
   Future<void> reiniciar() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_indiceAmbienteKey);
+    final documentoJogador = await _obterDocumentoJogador();
 
-    await _documentoJogadorTeste.set(
+    await documentoJogador.set(
       {
         'status': 'reiniciado_teste',
-        'modo_teste': true,
+        'jogador_id': documentoJogador.id,
         'ambiente_indice': 0,
         'jogo_finalizado': false,
         'atualizado_em': FieldValue.serverTimestamp(),

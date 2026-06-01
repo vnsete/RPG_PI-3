@@ -26,6 +26,8 @@ class TelaCapitulo extends StatefulWidget {
 }
 
 class _TelaCapituloState extends State<TelaCapitulo> {
+  static const _proporcaoArte = 9 / 16;
+
   int _indiceCena = 0;
 
   Cena? get _cenaAtual {
@@ -56,7 +58,7 @@ class _TelaCapituloState extends State<TelaCapitulo> {
   }
 
   Widget _opcoesCena(Cena cena) {
-    final alturaMaxima = MediaQuery.sizeOf(context).height * 0.48;
+    final alturaMaxima = MediaQuery.sizeOf(context).height * 0.42;
 
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: alturaMaxima),
@@ -102,10 +104,11 @@ class _TelaCapituloState extends State<TelaCapitulo> {
 
   Widget _conteudoInferior(Cena? cena) {
     return SafeArea(
+      minimum: const EdgeInsets.only(bottom: 18),
       child: Align(
         alignment: Alignment.bottomCenter,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: cena != null && cena.tipo == TipoCena.escolha
               ? _opcoesCena(cena)
               : _indicadorToque(),
@@ -123,20 +126,34 @@ class _TelaCapituloState extends State<TelaCapitulo> {
       behavior: HitTestBehavior.opaque,
       onTap: podeTocarNaTela ? () => _avancarCena() : null,
       child: Stack(
+        clipBehavior: Clip.none,
         fit: StackFit.expand,
         children: [
-          Image.asset(
-            imagem,
-            fit: BoxFit.cover,
+          Center(
+            child: Transform.scale(
+              scale: 1.06,
+              child: AspectRatio(
+                aspectRatio: _proporcaoArte,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.asset(
+                      imagem,
+                      fit: BoxFit.cover,
+                    ),
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      height: 260,
+                      child: _sombraInferior(),
+                    ),
+                    _conteudoInferior(cena),
+                  ],
+                ),
+              ),
+            ),
           ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: 220,
-            child: _sombraInferior(),
-          ),
-          _conteudoInferior(cena),
         ],
       ),
     );
@@ -149,6 +166,7 @@ class _TelaCapituloState extends State<TelaCapitulo> {
     final podeTocarNaTela = cena == null || cena.tipo != TipoCena.escolha;
 
     return Scaffold(
+      backgroundColor: Colors.black,
       body: _corpoCapitulo(
         imagem: imagem,
         cena: cena,
@@ -174,14 +192,17 @@ class _TelaCapituloState extends State<TelaCapitulo> {
             size: 18,
           ),
           SizedBox(width: 8),
-          Text(
-            'TOQUE NA TELA PARA CONTINUAR',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0,
+          Flexible(
+            child: Text(
+              'TOQUE NA TELA PARA CONTINUAR',
+              textAlign: TextAlign.center,
+              softWrap: true,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0,
+              ),
             ),
           ),
         ],

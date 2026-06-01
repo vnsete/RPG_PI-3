@@ -19,6 +19,7 @@ class BotaoJogo extends StatelessWidget {
           backgroundColor: const Color(0xFF0057B8),
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          minimumSize: const Size.fromHeight(48),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
@@ -27,9 +28,10 @@ class BotaoJogo extends StatelessWidget {
         child: Text(
           texto,
           textAlign: TextAlign.center,
+          softWrap: true,
           style: const TextStyle(
-            fontSize: 15,
-            height: 1.15,
+            fontSize: 14,
+            height: 1.2,
             fontWeight: FontWeight.bold,
           ),
         ),
