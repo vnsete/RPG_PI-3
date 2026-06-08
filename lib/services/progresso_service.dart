@@ -2,32 +2,43 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProgressoService {
-  ProgressoService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  ProgressoService({FirebaseFirestore? firestore}) : _firestore = firestore;
 
   static const _indiceAmbienteKey = 'indice_ambiente_atual';
-  static const _jogadorIdKey = 'jogador_id';
+  static const _jogadorNomeKey = 'jogador_nome';
   static const _colecaoProgresso = 'progresso_jogadores';
 
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestore? _firestore;
 
-  Future<String> _obterJogadorId() async {
+  FirebaseFirestore get _db => _firestore ?? FirebaseFirestore.instance;
+
+  Future<String?> _obterNomeJogador() async {
     final prefs = await SharedPreferences.getInstance();
-    final jogadorIdSalvo = prefs.getString(_jogadorIdKey);
+    final nome = prefs.getString(_jogadorNomeKey);
+    if (nome == null || nome.isEmpty) return null;
+    return nome;
+  }
 
-    if (jogadorIdSalvo != null && jogadorIdSalvo.isNotEmpty) {
-      return jogadorIdSalvo;
-    }
-
-    final jogadorId = 'jogador_${DateTime.now().microsecondsSinceEpoch}';
-    await prefs.setString(_jogadorIdKey, jogadorId);
-    return jogadorId;
+  String _sanitizarNomeParaId(String nome) {
+    final sanitized = nome
+        .toLowerCase()
+        .replaceAll(RegExp(r"[^a-z0-9]+"), '_')
+        .replaceAll(RegExp(r'_+'), '_')
+        .trim();
+    if (sanitized.isEmpty) return 'jogador_anonimo';
+    return 'jogador_$sanitized';
   }
 
   Future<DocumentReference<Map<String, dynamic>>>
       _obterDocumentoJogador() async {
-    final jogadorId = await _obterJogadorId();
-    return _firestore.collection(_colecaoProgresso).doc(jogadorId);
+    final nome = await _obterNomeJogador();
+    if (nome == null || nome.isEmpty) {
+      throw Exception(
+          'Nome do jogador não definido. Defina o nome antes de acessar o progresso.');
+    }
+
+    final docId = _sanitizarNomeParaId(nome);
+    return _db.collection(_colecaoProgresso).doc(docId);
   }
 
   Future<int> carregarIndiceAmbiente() async {
@@ -56,11 +67,13 @@ class ProgressoService {
   }) async {
     await salvarIndiceAmbiente(indiceAmbienteAtual);
     final documentoJogador = await _obterDocumentoJogador();
+    final nome = await _obterNomeJogador();
 
     await documentoJogador.set(
       {
         'status': 'progresso_salvo',
         'jogador_id': documentoJogador.id,
+        if (nome != null) 'nome': nome,
         'ambiente_indice': indiceAmbienteAtual,
         'ambiente_id': ambienteAtualId,
         'ambiente_nome': ambienteAtualNome,
@@ -83,10 +96,12 @@ class ProgressoService {
     int? proximaCena,
   }) async {
     final documentoJogador = await _obterDocumentoJogador();
+    final nome = await _obterNomeJogador();
 
     await documentoJogador.set(
       {
         'jogador_id': documentoJogador.id,
+        if (nome != null) 'nome': nome,
         'ultima_escolha': {
           'ambiente_id': ambienteId,
           'texto': escolha,
@@ -111,11 +126,13 @@ class ProgressoService {
   }) async {
     await salvarIndiceAmbiente(indiceAmbiente);
     final documentoJogador = await _obterDocumentoJogador();
+    final nome = await _obterNomeJogador();
 
     await documentoJogador.set(
       {
         'status': 'capitulo_iniciado_teste',
         'jogador_id': documentoJogador.id,
+        if (nome != null) 'nome': nome,
         'ambiente_indice': indiceAmbiente,
         'ambiente_id': ambienteId,
         'ambiente_nome': ambienteNome,
@@ -133,6 +150,7 @@ class ProgressoService {
   }) async {
     await salvarIndiceAmbiente(indiceAmbiente);
     final documentoJogador = await _obterDocumentoJogador();
+    final nome = await _obterNomeJogador();
 
     await documentoJogador.set(
       {
@@ -140,6 +158,7 @@ class ProgressoService {
             ? 'jogo_finalizado_teste'
             : 'ambiente_concluido_teste',
         'jogador_id': documentoJogador.id,
+        if (nome != null) 'nome': nome,
         'ambiente_indice': indiceAmbiente,
         'ambiente_id': ambienteId,
         'ambiente_nome': ambienteNome,
@@ -154,16 +173,42 @@ class ProgressoService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_indiceAmbienteKey);
     final documentoJogador = await _obterDocumentoJogador();
+    final nome = await _obterNomeJogador();
 
     await documentoJogador.set(
       {
         'status': 'reiniciado_teste',
         'jogador_id': documentoJogador.id,
+        if (nome != null) 'nome': nome,
         'ambiente_indice': 0,
         'jogo_finalizado': false,
         'atualizado_em': FieldValue.serverTimestamp(),
       },
       SetOptions(merge: true),
     );
+  }
+
+  Future<void> setNomeJogador(String nome) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_jogadorNomeKey, nome);
+  }
+
+  Future<String?> carregarNomeJogador() => _obterNomeJogador();
+
+  /// Define o nome do jogador e detecta mudança de jogador
+  /// Retorna true se o nome mudou, false se permaneceu igual
+  Future<bool> definirNomeJogador(String novoNome) async {
+    final nomeAtual = await _obterNomeJogador();
+    final nomeMudou = nomeAtual != novoNome;
+
+    if (nomeMudou) {
+      // Se mudou o nome, reseta o progresso local
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_indiceAmbienteKey);
+    }
+
+    // Sempre salva o novo nome
+    await setNomeJogador(novoNome);
+    return nomeMudou;
   }
 }

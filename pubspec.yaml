@@ -14,6 +14,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   firebase_core: ^4.8.0
   cloud_firestore: ^6.4.0
+  audioplayers: ^6.7.0
 
 dev_dependencies:
   flutter_test:
@@ -30,3 +31,4 @@ flutter:
     - assets/images/ambiente_h15/
     - assets/images/ambiente_sala_10a/
     - assets/data/
+    - assets/audio/
